@@ -1,3 +1,0 @@
-intentions:
-docker container that we launch and it hosts our external server frontend and backend 
-
