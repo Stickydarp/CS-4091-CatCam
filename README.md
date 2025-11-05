@@ -43,6 +43,36 @@ docker run --rm -v ~/catcam_data/images:/catCamData/images -v ~/catcam_data/meta
 docker run --rm -v ~/catcam_data/images:/catCamData/images -v ~/catcam_data/metadata:/catCamData/metadata catcam-external:latest python -m catCamBackend.main classify_all
 ```
 
+## Development container (recommended for local dev)
+-----------------------------------------------
+If you plan to iterate on the code or run many commands, it's more convenient to use a single persistent development container instead of creating a new container per command. This repository includes a minimal `docker-compose.yml` and a helper script `dev.sh` to make that easy.
+
+1. Start the dev container (builds the image and mounts your source so edits are visible immediately):
+
+```bash
+./dev.sh up
+```
+
+2. Common helper commands (run inside the running container; no new containers are created):
+
+```bash
+./dev.sh shell         # open an interactive shell in the dev container
+./dev.sh demo          # run the demo script (creates demo_data images and populates demo DB)
+./dev.sh test          # run the test harness (uses tmp_test_catcam)
+./dev.sh init_db       # initialize DB inside the mounted metadata folder
+./dev.sh list          # list all metadata rows (prints via pprint)
+./dev.sh insert <fn>   # insert metadata for an image already placed in ~/catcam_data/images
+./dev.sh classify_all  # classify only images that are not yet classified
+./dev.sh down          # stop and remove the dev container
+```
+
+Notes:
+- `./dev.sh up` mounts `./externalServer` into `/app` inside the container so you can edit Python files on the host and run them immediately inside the container without rebuilding the image.
+- Pillow is included in `externalServer/requirements.txt` so the demo image-generation works out of the box.
+- If your system uses `docker-compose` (dash) instead of the `docker compose` plugin, either replace `docker compose` with `docker-compose` in `dev.sh` or run `docker-compose -f docker-compose.yml up -d` manually.
+
+This workflow keeps a single container running for interactive development and demos while preserving the convenience of mounted host folders for images and metadata.
+
 ## Developer API (Python)
 ----------------------
 If working inside the codebase, import the Python modules directly (this is what our demo scripts do):

@@ -30,12 +30,12 @@ def main():
 		from pprint import pprint
 		pprint(db_utils.get_all_metadata())
 	elif args.action == 'classify_all':
-		print(commands.execute_command('classify_all'))
+		print("results =", commands.execute_command('classify_all'))
 	elif args.action == 'classify_image':
 		if not args.image_id:
 			print('image_id required')
 			return
-		print(commands.execute_command('classify_image', {'image_id': args.image_id}))
+		print("results =", commands.execute_command('classify_image', {'image_id': args.image_id}))
 
 
 if __name__ == '__main__':

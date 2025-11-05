@@ -50,19 +50,21 @@ def classify_image(image_id: int, classifier: Optional[callable] = None) -> dict
 def classify_all(classifier: Optional[callable] = None) -> dict:
     """Classify every image in the DB that has not yet been classified.
 
-    Returns a summary dict: { total: <num to process>, classified: <num succeeded>, errors: [..] }
+    Returns a summary dict: { total entries: <total entries>, classified: <num processed>, errors: [..] }
     """
     classifier = classifier or _stub_classify_image
     # Query only images that are not yet classified
     unclassified = db_utils.query_images(classified=False)
-    results = {"total": len(unclassified), "classified": 0, "errors": []}
+    classified = db_utils.query_images(classified=True)
+    results = {"total entries": len(unclassified)+len(classified), "unclassified": len(unclassified), "classified": len(classified), "errors": []}
     for item in unclassified:
         image_id = item.get("id")
         try:
             res = classify_image(image_id, classifier=classifier)
             if "error" in res:
                 results["errors"].append({"id": image_id, "error": res["error"]})
-            else:
+            else:   
+                results["unclassified"] -= 1
                 results["classified"] += 1
         except Exception as e:
             results["errors"].append({"id": image_id, "error": str(e)})
