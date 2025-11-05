@@ -12,10 +12,6 @@ import argparse
 import subprocess
 import sys
 
-# HOME = Path.home()
-# IMAGES = HOME.parents[1] / 'catcam_data' / 'images'
-# METADATA = HOME.parents[1] / 'catcam_data' / 'metadata'
-
 SCRIPT_PATH = Path(__file__).resolve()   # full path to this script
 SCRIPT_DIR = SCRIPT_PATH.parent          # externalServer/scripts
 PROJECT_ROOT = SCRIPT_DIR.parent.parent  # CS-4091-CatCam
@@ -45,6 +41,5 @@ if args.build_image:
         print('Docker build failed with exit code', e.returncode)
         print(IMAGES)
         print(METADATA)
-        print(HOME)
         sys.exit(e.returncode)
     print('Docker image built')

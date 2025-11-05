@@ -48,12 +48,16 @@ def classify_image(image_id: int, classifier: Optional[callable] = None) -> dict
 
 
 def classify_all(classifier: Optional[callable] = None) -> dict:
-    """Classify every image in the DB. Returns a summary dict."""
+    """Classify every image in the DB that has not yet been classified.
+
+    Returns a summary dict: { total: <num to process>, classified: <num succeeded>, errors: [..] }
+    """
     classifier = classifier or _stub_classify_image
-    all_meta = db_utils.get_all_metadata()
-    results = {"total": len(all_meta), "classified": 0, "errors": []}
-    for item in all_meta:
-        image_id = item["id"]
+    # Query only images that are not yet classified
+    unclassified = db_utils.query_images(classified=False)
+    results = {"total": len(unclassified), "classified": 0, "errors": []}
+    for item in unclassified:
+        image_id = item.get("id")
         try:
             res = classify_image(image_id, classifier=classifier)
             if "error" in res:

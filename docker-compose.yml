@@ -1,0 +1,16 @@
+version: "3.8"
+services:
+  catcam:
+    build:
+      context: ./externalServer
+    image: catcam-external:latest
+    container_name: catcam-dev
+    # mount only the externalServer source so edits on host show up immediately
+    volumes:
+      - ./externalServer:/app:delegated
+      - ${HOME}/catcam_data/images:/catCamData/images
+      - ${HOME}/catcam_data/metadata:/catCamData/metadata
+    working_dir: /app
+    command: tail -f /dev/null
+    tty: true
+    stdin_open: true
