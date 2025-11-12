@@ -1,0 +1,171 @@
+Network Configuration
+
+
+CURRENT NETWORK REQUIREMENTS
+--------------------
+- 2.4GHz WiFi network
+- Server and Nicla Vision must be on same network
+- Port 8888 must be accessible
+
+
+CONFIGURE NICLA
+--------------
+- Find your server IP address
+- Edit catcam_nicla_firmware.py
+    - Line 14: Line 14: SERVER_IP = "192.168.0.226"     <- Change to your server IP
+    - Line 16: WIFI_SSID = "Lan Solo"                   <- Change to your WiFi name
+    - Line 17: WIFI_PASSWORD = "595348964C"               <- Change to your WiFi password
+- Save changes and update nicla vision
+
+
+CONFIGURE SERVER
+----------------
+No configuration needed. Server listens on 0.0.0.0:8888 (all interfaces).
+
+Images saved to: received_images/
+Metadata saved to: metadata/
+Log file: catcam_log.txt
+
+
+NETWORK PORTS
+-------------
+Port 8888: Image upload (Nicla -> Server)
+Serial: 57600 baud (Uno <-> Nicla)
+
+
+TESTING CONNECTIVITY
+--------------------
+1. Start server: python catcam_server.py
+   Should display: "Listening on 0.0.0.0:8888"
+
+2. Check Nicla connects to WiFi:
+   OpenMV serial terminal should show:
+   "WiFi connected! IP: x.x.x.x"
+
+3. Test from Nicla to Server:
+   Wait 30 seconds (standby interval)
+   Server should show: "Receiving frame..."
+
+4. Verify ping (optional):
+   From server: ping <nicla_ip>
+   From Nicla: Use network diagnostic tools if available
+
+
+COMMUNICATION CHANNELS
+----------------------
+
+1. ARDUINO UNO <--> NICLA VISION (Serial UART)
+   - Physical: 3-wire (TX, RX, GND)
+   - Protocol: JSON over serial, newline-delimited
+   - Baud: 57600
+   - Direction: Bidirectional
+   
+   Uno -> Nicla (Sensor Data):
+   {"type":"sensor","motion":true,"temp_c":24.3,"humidity":45.2,"seq":123}\n
+   
+   Nicla -> Uno (Status Update):
+   {"type":"status","mode":"alert","last_upload":"2025-10-29T14:00:00Z","seq":124}\n
+
+
+2. NICLA VISION <--> SERVER (WiFi/TCP)
+   - Protocol: Custom binary over TCP sockets
+   - Port: 8888
+   - Direction: Nicla initiates, server responds
+   - No persistent connection (connect per upload)
+   
+   Upload Sequence:
+   a) Nicla connects to SERVER_IP:8888
+   b) Sends ASCII header: "{frame_num},{byte_count}\n"
+      Example: "42,23456\n"
+   c) Sends raw JPEG binary data (exact byte_count bytes)
+   d) Optionally receives JSON response from server
+   e) Closes connection
+   
+   Server Response (optional):
+   {"status":"ok","next_mode":"alert","action":"none","detection":{"cat_detected":true,"confidence":0.85}}
+
+
+NETWORK REQUIREMENTS
+--------------------
+- Nicla Vision requires 2.4GHz WiFi (does NOT support 5GHz)
+- Typical bandwidth: 20-50 KB per image
+- Upload frequency: 
+  * Standby: every 30 seconds (~1-2 KB/min)
+  * Alert: every 5 seconds (~6-10 KB/min)
+  * Active: every 0.5 seconds (~60-100 KB/min)
+- Latency tolerance: System works with up to 5 second upload delays
+- Firewall: Server must accept TCP on port 8888
+
+
+SUGGESTED IMPLEMENTATION FOR SEPARATE WIFI NETWORKS
+-----------------------------------------------------
+PORT FORWARDING
+---------------
+Topology: Nicla <---> Internet <---> Home Router <---> Server Computer
+Setup:
+1. Find public IP
+2. Configure router port forwarding:
+   - External port: 8888
+   - Internal IP: server's local IP (192.168.x.x)
+   - Internal port: 8888
+   - Protocol: TCP
+3. Update SERVER_IP in Nicla firmware to public IP
+4. Optional: Use Dynamic DNS (NoIP, DuckDNS) for changing IPs
+Pros: Works from anywhere, no recurring costs
+Cons: Exposes server to internet, public IP may change, no built-in security
+
+
+PACKET SPECIFICATIONS
+---------------------
+
+IMAGE UPLOAD PACKET (Nicla -> Server):
+1. Header (ASCII text, newline-terminated):
+   Format: "{frame_number},{image_size_bytes}\n"
+   Example: "42,23456\n" = frame 42, 23456 bytes
+   
+2. Body (raw binary):
+   JPEG image data, exactly {image_size_bytes} bytes
+   No encoding, no headers, just raw JPEG file contents
+
+3. Optional Metadata (JSON, if extended protocol used):
+   Not implemented in basic version
+   Could be added after image data for future enhancement
+
+
+SERVER RESPONSE PACKET (Server -> Nicla):
+Format: JSON string
+Example:
+{
+  "status": "ok",
+  "frame": "42",
+  "next_mode": "alert",
+  "action": "none",
+  "message": "Cat detected",
+  "detection": {
+    "cat_detected": true,
+    "confidence": 0.85,
+    "bbox": {"x": 100, "y": 80, "width": 120, "height": 100}
+  }
+}
+
+Fields:
+- status: "ok" or "error"
+- next_mode: "standby" | "alert" | "active" | "remain_alert"
+- action: "none" | "start_stream" | "stop_stream"
+- detection: Object with cat detection results
+
+
+CONFIGURATION QUICK REFERENCE
+------------------------------
+Files to modify for network changes:
+
+Nicla firmware (catcam_nicla_firmware.py):
+- Line 14: SERVER_IP = "192.168.0.226"
+- Line 15: SERVER_PORT = 8888
+- Line 16: WIFI_SSID = "YourNetwork"
+- Line 17: WIFI_PASSWORD = "YourPassword"
+
+Server (catcam_server.py):
+- Line 13: HOST = '0.0.0.0' (listen all interfaces)
+- Line 14: PORT = 8888
+- Line 15: SAVE_DIR = 'received_images'

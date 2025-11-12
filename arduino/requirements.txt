@@ -1,0 +1,58 @@
+CatCam Physical System Requirements
+
+DEVELOPMENT TOOLS
+-----------------
+Arduino IDE 1.8.19+ or 2.x
+  Download: https://www.arduino.cc/en/software
+
+OpenMV IDE 4.0.0+
+  Download: https://openmv.io/pages/download
+  
+Python 3.7+
+  Download: https://www.python.org/downloads/
+
+ARDUINO UNO LIBRARIES
+---------------------
+Install via Arduino IDE Library Manager (Sketch > Include Library > Manage Libraries)
+
+Adafruit GFX Library 1.11.0+
+  Purpose: OLED display graphics
+
+Adafruit SSD1306 2.5.0+
+  Purpose: OLED display driver
+  
+ChainableLED 1.1.0+
+  Purpose: RGB LED control
+  
+DHT sensor library 1.4.0+
+  Purpose: Temperature/humidity sensor
+  
+RTClib 2.0.0+
+  Purpose: RTC clock interface
+  
+ArduinoJson 6.x (NOT 7.x)
+  Purpose: JSON messaging
+  Note: Use version 6.21.0 or newer
+
+NICLA VISION LIBRARIES
+----------------------
+All required libraries built into OpenMV firmware:
+- sensor (camera control)
+- image (image processing)
+- network (WiFi)
+- socket (networking)
+- json (JSON parsing)
+- pyb (UART, LED)
+- time (timing)
+
+No additional installation needed.
+
+PYTHON SERVER DEPENDENCIES
+--------------------------
+All standard library (no pip install required):
+- socket
+- os
+- json
+- datetime
+- threading
+- time

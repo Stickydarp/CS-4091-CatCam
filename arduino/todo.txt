@@ -1,0 +1,7 @@
+To-do reference list
+
+- Establish system enough for implementaton within greater system
+- Connect Arduino and Nicla to test out communication implementation
+- Construct body for CatCam system
+- Deploy system for testing
+
