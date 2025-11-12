@@ -92,3 +92,4 @@ COMMUNICATION
 -------------
 Uno <-> Nicla: Serial at 57600 baud (JSON messages)
 Nicla -> Server: WiFi on port 8888 (binary + JSON)
+
