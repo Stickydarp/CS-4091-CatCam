@@ -1,16 +1,24 @@
 version: "3.8"
 services:
-  catcam:
+  backend:
     build:
       context: ./externalServer
-    image: catcam-external:latest
-    container_name: catcam-dev
-    # mount only the externalServer source so edits on host show up immediately
-    volumes:
-      - ./externalServer:/app:delegated
-      - ${HOME}/catcam_data/images:/catCamData/images
-      - ${HOME}/catcam_data/metadata:/catCamData/metadata
+      dockerfile: Backend.Dockerfile
+    container_name: catcam-backend
     working_dir: /app
     command: tail -f /dev/null
+    ports:
+      - "8000:8000"
     tty: true
     stdin_open: true
+  frontend:
+    build:
+      context: ./externalServer
+      dockerfile: Frontend.Dockerfile
+    container_name: catcam-frontend
+    tty: true
+    stdin_open: true
+    working_dir: /app
+    command: npm run dev
+    ports:
+      - "3000:3000"

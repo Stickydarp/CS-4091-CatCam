@@ -1,0 +1,20 @@
+# copy this into the root of the directory into a file called "docker-compose.override.yml"
+# this will override the production docker-compose.yml to mount files, allowing for easy
+# dev environments
+version: "3.8"
+services:
+  backend:
+    container_name: catcam-backend-dev
+    # mount only the externalServer source so edits on host show up immediately
+    volumes:
+      - ./externalServer:/app:delegated
+      - ${HOME}/catcam_data/images:/catCamData/images
+      - ${HOME}/catcam_data/metadata:/catCamData/metadata
+    network_mode: "host"
+    command: tail -f /dev/null
+  frontend:
+    container_name: catcam-frontend-dev
+    volumes:
+      - ./externalServer/catCamFrontend:/app:delegated
+    network_mode: "host"
+    command: npm run dev

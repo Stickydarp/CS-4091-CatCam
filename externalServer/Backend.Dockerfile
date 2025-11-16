@@ -21,6 +21,7 @@ RUN pip install --no-cache-dir -r /requirements.txt
 # Copy the rest of the application code
 COPY . /app
 
+RUN python /app/scripts/setup_environment.py --prepare-host
 
 # Expose whatever port your app uses
 EXPOSE 8000
