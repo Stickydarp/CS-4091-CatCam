@@ -16,7 +16,7 @@ do_up() {
 }
 
 do_shell() {
-  docker exec -it catcam-dev /bin/bash
+  docker exec -it catcam-backend /bin/bash
 }
 
 do_exec() {
@@ -26,40 +26,40 @@ do_exec() {
     exit 1
   fi
   ensure_running
-  docker exec -it catcam-dev "$@"
+  docker exec -it catcam-backend "$@"
 }
 
 ensure_running() {
   # check if container is running
-  if [ -z "$(docker ps -q -f name=^/catcam-dev$)" ]; then
-    echo "Container 'catcam-dev' is not running. Start it with: $0 up"
+  if [ -z "$(docker ps -q -f name=^/catcam-backend$)" ]; then
+    echo "Container 'catcam-backend' is not running. Start it with: $0 up"
     exit 1
   fi
 }
 
 do_demo() {
   ensure_running
-  docker exec -it catcam-dev python -m scripts.demo_commands
+  docker exec -it catcam-backend python -m scripts.demo_commands
 }
 
 do_test() {
   ensure_running
-  docker exec -it catcam-dev python -m scripts.test_commands
+  docker exec -it catcam-backend python -m scripts.test_commands
 }
 
 do_init_db() {
   ensure_running
-  docker exec -it catcam-dev python -m catCamBackend.main init_db
+  docker exec -it catcam-backend python -m catCamBackend.main init_db
 }
 
 do_list() {
   ensure_running
-  docker exec -it catcam-dev python -m catCamBackend.main list
+  docker exec -it catcam-backend python -m catCamBackend.main list
 }
 
 do_classify_all() {
   ensure_running
-  docker exec -it catcam-dev python -m catCamBackend.main classify_all
+  docker exec -it catcam-backend python -m catCamBackend.main classify_all
 }
 
 do_insert() {
@@ -69,7 +69,7 @@ do_insert() {
     exit 1
   fi
   # $2 is the filename
-  docker exec -it catcam-dev python -m catCamBackend.main insert_metadata --filename "$2"
+  docker exec -it catcam-backend python -m catCamBackend.main insert_metadata --filename "$2"
 }
 
 do_down() {
