@@ -27,7 +27,6 @@ RUN python /app/scripts/setup_environment.py --prepare-host
 EXPOSE 8000
 
 
-# The command to run your app. Adjust path/command as needed.
-# For example, if your FastAPI app is in src/catcam_backend/main.py:
-CMD ["python", "-m", "catCamBackend.main", "list"]
+# Run the FastAPI app with uvicorn by default. Use docker exec to run CLI commands if needed.
+CMD ["uvicorn", "catCamBackend.server:app", "--host", "0.0.0.0", "--port", "8000", "--log-level", "info"]
 
