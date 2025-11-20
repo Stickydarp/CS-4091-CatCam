@@ -1,0 +1,3 @@
+# Source this file to configure CATCAM paths for host-side scripts
+export CATCAM_IMAGES_DIR="/home/krevi/schoolwork/capstone/CS-4091-CatCam/catcam_data/images"
+export CATCAM_METADATA_DIR="/home/krevi/schoolwork/capstone/CS-4091-CatCam/catcam_data/metadata"

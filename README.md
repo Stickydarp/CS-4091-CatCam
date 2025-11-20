@@ -45,6 +45,17 @@ To run the entire app at once, simply use:
 docker-compose up -d
 ```
 
+Storage paths used by the backend (repo-local)
+--------------------------------------------
+
+The backend expects image and metadata folders to live under the repository by default. Use these paths when working with the dev container or running the CLI:
+
+- Host (repo-local) images folder: ./catcam_data/images
+- Host (repo-local) metadata folder & DB: ./catcam_data/metadata (DB file: ./catcam_data/metadata/db.sqlite3)
+- Container mounts (inside backend): /catCamData/images and /catCamData/metadata
+
+Place images you want the backend to manage into `./catcam_data/images` (relative to the repository root). The backend stores metadata in the sqlite file at `./catcam_data/metadata/db.sqlite3`.
+
 To stop the app, run:
 
 ```bash

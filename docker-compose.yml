@@ -6,6 +6,11 @@ services:
       dockerfile: Backend.Dockerfile
     container_name: catcam-backend
     working_dir: /app
+    # Mount repo-local catcam_data so images and DB live in the repository folder
+    volumes:
+      - ./externalServer:/app:delegated
+      - ./catcam_data/images:/catCamData/images
+      - ./catcam_data/metadata:/catCamData/metadata
     command: tail -f /dev/null
     ports:
       - "8000:8000"
@@ -22,3 +27,7 @@ services:
     command: npm run dev
     ports:
       - "3000:3000"
+    # Mount repo-local data so frontend can read images/metadata during development
+    volumes:
+      - ./catcam_data/images:/catCamData/images:ro
+      - ./catcam_data/metadata:/catCamData/metadata:ro

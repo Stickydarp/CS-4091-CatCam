@@ -11,6 +11,7 @@ from pathlib import Path
 import argparse
 import subprocess
 import sys
+import os
 
 SCRIPT_PATH = Path(__file__).resolve()   # full path to this script
 SCRIPT_DIR = SCRIPT_PATH.parent          # externalServer/scripts
@@ -26,9 +27,41 @@ args = parser.parse_args()
 if args.prepare_host:
     IMAGES.mkdir(parents=True, exist_ok=True)
     METADATA.mkdir(parents=True, exist_ok=True)
+
+    # Try to set permissive ownership and permissions so tools run as the current user
+    uid = os.getuid()
+    gid = os.getgid()
+    try:
+        # chown will silently fail if not permitted; that's acceptable
+        os.chown(IMAGES, uid, gid)
+        os.chown(METADATA, uid, gid)
+    except PermissionError:
+        pass
+    try:
+        os.chmod(IMAGES, 0o775)
+        os.chmod(METADATA, 0o775)
+    except PermissionError:
+        pass
+
     print('Created host folders:')
     print(' -', IMAGES)
     print(' -', METADATA)
+
+    # Write a small .env file that can be sourced to set CATCAM_* variables for host runs
+    env_file = PROJECT_ROOT / '.catcam_env'
+    try:
+        with open(env_file, 'w') as f:
+            f.write(f"# Source this file to configure CATCAM paths for host-side scripts\n")
+            f.write(f"export CATCAM_IMAGES_DIR=\"{IMAGES}\"\n")
+            f.write(f"export CATCAM_METADATA_DIR=\"{METADATA}\"\n")
+        try:
+            os.chown(env_file, uid, gid)
+        except PermissionError:
+            pass
+        print('Wrote helper env file:', env_file)
+        print('You can run: source', env_file)
+    except Exception as e:
+        print('Could not write helper env file:', e)
 
 if args.build_image:
     print('Building docker image catcam-external:latest from externalServer...')

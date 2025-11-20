@@ -13,23 +13,21 @@ Run from repository root as:
 
 import os
 import shutil
-import importlib
 import sys
 import subprocess
 from pathlib import Path
-import time
 
-ROOT = Path(__file__).resolve().parents[2]
+HERE = Path(__file__).resolve()
+ROOT = HERE.parents[2]  # Corrected: Remove / 'catcam_data' to match working script
 EXTERNAL = ROOT / 'externalServer'
 SCRIPTS = EXTERNAL / 'scripts'
 TEST_DIR = EXTERNAL / 'tmp_test_catcam'
 
-# Ensure module path
+# Ensure module path (do this before importing catCamBackend)
 sys.path.insert(0, str(EXTERNAL))
 
-# Import modules
-import catCamBackend.db_utils as db_utils
-import catCamBackend.commands as commands
+# Now import (after sys.path modification)
+from catCamBackend import db_utils, commands
 
 
 def setup_test_dirs():
@@ -77,6 +75,10 @@ def run_tests():
     res_all = commands.execute_command('classify_all')
     print('classify_all result:', res_all)
 
+    #Get images
+    get_images = commands.execute_command('get_images')
+    print('get_images result:', get_images)
+
     # Delete first image
     del_res = commands.execute_command('delete_image', {'image_id': image_id})
     print('delete_image result:', del_res)
@@ -86,22 +88,9 @@ def run_tests():
     print('clear_database result:', clear_res)
 
 
-def try_docker_build():
-    print('\nAttempting docker build for externalServer...')
-    # Build image named catcam-external:test
-    cmd = ['docker', 'build', '-t', 'catcam-external:test', '.']
-    try:
-        proc = subprocess.run(cmd, cwd=str(EXTERNAL), stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, timeout=300)
-        print('docker build exit', proc.returncode)
-        print(proc.stdout[:4000])
-    except FileNotFoundError:
-        print('docker not found; skipping docker build')
-    except subprocess.TimeoutExpired:
-        print('docker build timed out; skipping')
 
 
 if __name__ == '__main__':
     setup_test_dirs()
     run_tests()
-    try_docker_build()
     print('\nTest run complete')

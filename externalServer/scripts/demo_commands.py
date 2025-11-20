@@ -21,8 +21,8 @@ EXTERNAL = ROOT / 'externalServer'
 DEMO = EXTERNAL / 'demo_data'
 
 sys.path.insert(0, str(EXTERNAL))
-
 from catCamBackend import db_utils, commands
+
 
 
 def make_demo_images():

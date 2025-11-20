@@ -1,10 +1,14 @@
 import sqlite3
 from datetime import datetime
 import os
+from pathlib import Path
 
-DB_FILE = "/catCamData/metadata/db.sqlite3"
-
-IMAGES_DIR = "/catCamData/images"
+# Default to a repo-local `catcam_data` folder (keeps data with the repo).
+# Allow overriding via environment variables (useful for CI / alternate setups).
+# Prefer explicit environment overrides (useful for CI); otherwise use the
+# mounted container paths under /catCamData which are populated by docker-compose
+IMAGES_DIR = os.environ.get('CATCAM_IMAGES_DIR', '/catCamData/images')
+DB_FILE = os.path.join(os.environ.get('CATCAM_METADATA_DIR', '/catCamData/metadata'), 'db.sqlite3')
 
 def init_db():
     # Ensure directories exist
